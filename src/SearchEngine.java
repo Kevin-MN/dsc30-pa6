@@ -1,6 +1,6 @@
 /*
- * Name: TODO
- * PID:  TODO
+ * Name: Kevin Morales-Nguyen
+ * PID:  A17186624
  */
 
 import java.io.File;
@@ -12,8 +12,8 @@ import java.util.Scanner;
 /**
  * Search Engine implementation.
  * 
- * @author TODO
- * @since  TODO
+ * @author Kevin Morales-Nguyen
+ * @since  11/8/21
  */
 public class SearchEngine {
 
@@ -37,15 +37,27 @@ public class SearchEngine {
             while (scanner.hasNextLine()) {
                 // read 5 lines per batch:
                 // movie, cast, studios, rating, trailing hyphen
-                String movie = scanner.nextLine().trim();
+                String movie = scanner.nextLine().trim().toLowerCase();
                 String cast[] = scanner.nextLine().split(" ");
                 String studios[] = scanner.nextLine().split(" ");
                 String rating = scanner.nextLine().trim();
                 scanner.nextLine();
 
-                /* TODO */
-                // populate three trees with the information you just read
-                // hint: create a helper function and reuse it to build all three trees
+                //for all the movie and rating trees add keys to tree
+                for(int i = 0; i < cast.length;i++) {
+                    movieTree.insert(cast[i]);
+                    ratingTree.insert(cast[i]);
+                    movieTree.insertData(cast[i], movie);
+                    //don't add duplicate ratings
+                    if (!ratingTree.findDataList(cast[i]).contains(rating)) {
+                        ratingTree.insertData(cast[i], rating);
+                    }
+                }
+                    // add all the movies to studios as keys
+                for(int l = 0; l < studios.length;l++){
+                    studioTree.insert(studios[l]);
+                    studioTree.insertData(studios[l], movie);
+                }
 
             }
             scanner.close();
@@ -63,17 +75,95 @@ public class SearchEngine {
      */
     public static void searchMyQuery(BSTree<String> searchTree, String query) {
 
-        /* TODO */
-        // process query
+
         String[] keys = query.toLowerCase().split(" ");
 
         // search and output intersection results
         // hint: list's addAll() and retainAll() methods could be helpful
+        LinkedList<String> full_data = new LinkedList<String>();
 
-        // search and output individual results
-        // hint: list's addAll() and removeAll() methods could be helpful
+
+        try { // check if key is not part of tree
+            if (keys.length == 1 && !searchTree.findKey(keys[0])) {
+                print(query,  new LinkedList<String>());
+                return;
+            }
+        }
+        catch(IllegalArgumentException e){
+            print(query, searchTree.findDataList(keys[0]));
+        }
+
+
+        try { // if there is only one arg then query it and end method call
+            for (int i = 0; i < keys.length; i++) {
+                full_data.addAll(searchTree.findDataList(keys[i]));
+            }
+        }catch(IllegalArgumentException e){
+
+        }
+
+        try { // retain shared data from keys
+            for (int l = 0; l < keys.length; l++) {
+                for(int i = 0; i< searchTree.findDataList(keys[l]).size(); i++){
+                }
+               full_data.retainAll(searchTree.findDataList(keys[l]));
+            }
+        }catch(IllegalArgumentException e){
+
+        }
+
+        full_data = removeDuplicates(full_data);
+
+        print(query, full_data);
+
+
+
+            for (int l = 0; l < keys.length; l++) { // print out individual queries
+                //without duplicates
+                LinkedList<String> indv_data = new LinkedList<String>();
+                try {
+                    indv_data = searchTree.findDataList(keys[l]);
+
+                indv_data.removeAll(full_data);// remove previously mentioned movies
+                full_data.addAll(indv_data); // update previously mentioned with newly mentioned movies
+                if(indv_data.isEmpty()){
+                    continue;
+                }
+                if(!indv_data.isEmpty() && full_data.isEmpty()){
+                    continue;
+                }
+
+                } catch (IllegalArgumentException e) {
+
+                }
+                print(keys[l], indv_data);
+            }
+
 
     }
+
+
+    /**
+     * This helper method removes duplicates from and linkedlist
+     * @param list list to remove duplicates from
+     * @return
+     */
+    public  static LinkedList<String> removeDuplicates(LinkedList<String> list) {
+        LinkedList<String> newList = new LinkedList<String>();
+
+        for (String element : list) {
+            if (!newList.contains(element)) {
+                newList.add(element);
+            }
+        }
+
+        return newList;
+    }
+
+
+
+        // search and output individual results
+        // hint: list's addAll() and removeAll() methods could be helpfu
 
     /**
      * Print output of query
@@ -101,14 +191,40 @@ public class SearchEngine {
 
         /* TODO */
         // initialize search trees
+        BSTree<String> actors_movies = new BSTree<String>();
+        BSTree<String> studios_movies = new BSTree<String>();
+        BSTree<String> actors_ratings = new BSTree<String>();
 
         // process command line arguments
         String fileName = args[0];
         int searchKind = Integer.parseInt(args[1]);
+        String query = "";
+
+        for(int p = 2; p < args.length;p++){
+            if(p == args.length - 1){
+                query = query.concat(args[p]);
+                continue;
+            }
+            query = query.concat(args[p].concat(" "));
+        }
 
         // populate search trees
-
+        populateSearchTrees(actors_movies,studios_movies, actors_ratings, fileName);
         // choose the right tree to query
+        switch(searchKind){
+            case(0):
+                searchMyQuery(actors_movies, query);
+                break;
+            case(1):
+                searchMyQuery(studios_movies, query);
+                break;
+            case(2):
+                searchMyQuery(actors_ratings, query);
+                break;
+
+            default:
+            break;
+        }
 
     }
 }

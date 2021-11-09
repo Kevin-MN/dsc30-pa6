@@ -186,7 +186,7 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
             throw new NullPointerException();
         }
 
-        if(root == null){
+        if(root == null){ // case for empty tree, set root to new node
             this.root = new BSTNode(null,null,key);
             this.nelems++;
             return true;
@@ -196,37 +196,42 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
             return false;
         }
 
-        boolean add_attempt = recur_add(this.root, key);
+        boolean add_attempt = recur_add(this.root, key); // use helper method to add
 
         return add_attempt;
     }
 
 
+    /**
+     * Helper method to insert key, implemented recursively
+     *
+     * @param current the current node of traversal
+     * @param key the value for comparison throughout traversal
+     * @return true if insertion is successful and false otherwise
+     */
     private boolean recur_add(BSTNode current,T key){
+        int compare = key.compareTo(current.getKey()); // store comparison in variable
 
-
-        int compare = key.compareTo(current.getKey());
-
-        if(compare == 0){
+        if(compare == 0){ // key already exists, do not add, false
             return false;
         }
-        else if(compare < 0){
-            if(current.getLeft() == null){
+        else if(compare < 0){ // key is less than
+            if(current.getLeft() == null){ // condition to add new node
                 current.setleft(new BSTNode(null,null,key));
                 this.nelems++;
                 return true;
             }
-            else{
+            else{ // can't add sp keep traversing to left
                 return recur_add(current.getLeft(),key);
             }
         }
-        else{
-            if(current.getRight() == null){
+        else{// key is greater than
+            if(current.getRight() == null){// condition to add new node
                 current.setright(new BSTNode(null,null,key));
                 this.nelems++;
                 return true;
             }
-            else{
+            else{// can't add sp keep traversing to right
                 return recur_add(current.getRight(),key);
             }
         }
@@ -241,21 +246,26 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
      * @throws NullPointerException If key is null
      */
     public boolean findKey(T key) {
-        if(key == null){
+        if(key == null){ // throw conditional
             throw new NullPointerException();
         }
 
-        if(this.root == null){
+        if(this.root == null){ // tree is empty return false
             return false;
         }
 
-        return findKey_helper(this.root, key);
+        return findKey_helper(this.root, key); // use recursive helper to find key
 
     }
 
-
+    /**
+     *Helper method for finding key, implemented recursively
+     *
+     * @param key To be searched
+     * @return True if the 'key' is found, false otherwise
+     */
     public boolean findKey_helper(BSTNode current, T key){
-        if(current == null){
+        if(current == null){ // reached null node from traversal, doesn't exist, false
             return false;
         }
 
@@ -264,10 +274,10 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
         if(compare == 0){
             return true;
         }
-        else if(compare < 0){
+        else if(compare < 0){ //traverse left key is less than
                 return findKey_helper(current.getLeft(),key);
         }
-        else{
+        else{//traverse right key is greater than
                 return findKey_helper(current.getRight(),key);
         }
     }
@@ -281,16 +291,16 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
      * @throws IllegalArgumentException If key is not found in the BST
      */
     public void insertData(T key, T data) {
-        if(key == null || data == null){
+        if(key == null || data == null){ // invalid data/key
             throw new NullPointerException();
         }
 
-        if(!findKey(key)){
+        if(!findKey(key)){ // key doesn't exist in tree
             throw new IllegalArgumentException();
         }
 
-        LinkedList<T> target_add = findDataList(key);
-        target_add.add(data);
+        LinkedList<T> target_add = findDataList(key); // key does exist so find the dataLis
+        target_add.add(data); //add data
 
     }
 
@@ -315,20 +325,29 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
         return target_data_list;
     }
 
+
+
+    /**
+     * Helper method that finds dataList given key
+     * implemented recursively
+     *
+     * @param key Target key
+     * @return LinkedList of the node whose key value is 'key'
+     */
     public LinkedList<T> findDataList_helper(BSTNode node, T key) {
-        if(node== null){
+        if(node== null){ // traversed through tree and couldn't find
             return null;
         }
 
         int compare = key.compareTo(node.getKey());
 
-        if(compare == 0){
+        if(compare == 0){ //key matched found node
             return node.getDataList();
         }
-        else if(compare < 0){
+        else if(compare < 0){ // key is less, traverse left
             return findDataList_helper(node.getLeft(),key);
         }
-        else{
+        else{  // key is less, traverse right
             return findDataList_helper(node.getRight(),key);
         }
     }
@@ -347,7 +366,7 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
             return 0;
         }
 
-        return findHeightHelper(this.root);
+        return findHeightHelper(this.root); // use helper method
     }
 
     /**
@@ -359,31 +378,99 @@ public class BSTree<T extends Comparable<? super T>> implements Iterable {
     private int findHeightHelper(BSTNode next) {
         if(next == null){
             return -1;
-        }
+        } // traverse list and add 1 for each recursive call, stack unwinds adding max
         return 1 + Math.max(findHeightHelper(next.left),findHeightHelper(next.right));
     }
 
     /* * * * * BST Iterator * * * * */
 
+
+    /**
+     * Class to implement iterator
+     *
+     */
     public class BSTree_Iterator implements Iterator<T> {
+        private Stack<BSTNode> node_stack;
+
+
+        /**
+         * Constructor that initializes stack with
+         * left most nodes for traversal
+         *
+         */
         public BSTree_Iterator() {
-            /* TODO */
+            node_stack = new Stack<BSTNode>();
+            BSTNode start = getRoot();
+
+            while(start != null){
+                node_stack.push(start);
+                start = start.getLeft();
+            }
         }
 
+
+        /**
+         * This method returns a boolean for an iterator,
+         * to indicate if there is a next node or not
+         * @return boolean if there is element to travers in stack
+         */
         public boolean hasNext() {
-            /* TODO */
-            return false;
+            if(this.node_stack.isEmpty() || node_stack.peek() == null){
+                return false;
+            }
+            else{
+                return true;
+            }
         }
 
+
+        /**
+         * This method returns the next key value in order from a BSTree
+         * @return T key of type T from node
+         */
         public T next() {
-            /* TODO */
-            return null;
+            BSTNode next_return = this.node_stack.pop(); // pop node from stack to return
+
+            if(next_return == null){ //reached end of traversal
+                throw new NoSuchElementException();
+            }
+
+            //no succesor to add to stack, return element
+            if(next_return.getRight() == null && next_return.getLeft() == null){
+                return next_return.getKey();
+            }
+            else { // we need to find successor to add to stack and mantain order
+                find_succesor(next_return);
+            }
+            return next_return.getKey();
+        }
+
+
+        /**
+         * This helper method helps find th successor node
+         * so that the iterator can properly return the next least
+         * smallest element and update stack correctly
+         * @param current current node for traversal
+         */
+        private void find_succesor(BSTNode current){
+            node_stack.push(current.getRight()); // push the right node onto the stack
+            current = current.getRight();
+
+            if(current == null){ // no more nodes, return
+                return;
+            }
+
+            while(current.getLeft() != null){ // keep traversing down left and add to stack
+
+                current = current.getLeft();
+
+                node_stack.push(current);
+            }
         }
     }
 
     public Iterator<T> iterator() {
-        /* TODO */
-        return null;
+        return new BSTree_Iterator();
     }
 
     /* * * * * Extra Credit Methods * * * * */

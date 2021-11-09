@@ -60,6 +60,29 @@ public class BSTreeTester {
         assertEquals(add, test.getRoot().getKey());
     }
 
+    @Test
+    public void getSize_BSTree_test1() {
+        assertEquals(0, test.getSize());
+    }
+
+    @Test
+    public void getSize_BSTree_test2() {
+        test.insert(new Integer(10));
+        assertEquals(1, test.getSize());
+    }
+
+    @Test
+    public void getSize_BSTree_test3() {
+        Integer add = new Integer(10);
+        test.insert(add);
+        test.insertData(add, new Integer(10));
+        assertEquals(1, test.getSize());
+    }
+
+
+
+
+
 
     @Test
     public void insert_BSTree_test1(){
@@ -125,22 +148,57 @@ public class BSTreeTester {
 
 
 
-    @Test(expected = NullPointerException.class)
-    public void findDataList_BSTree_test1(){
-       test.findDataList(null);
+    @Test
+    public void findHeight_BSTree_test1(){
+       assertEquals(-1, test.findHeight());
+    }
+
+    @Test
+    public void findHeight_BSTree_test2(){
+        test.insert(new Integer(10));
+        assertEquals(0, test.findHeight());
+    }
+
+    @Test
+    public void findHeight_BSTree_test3(){
+        test.insert(new Integer(10));
+        test.insert(new Integer(100));
+        assertEquals(1, test.findHeight());
     }
 
     @Test(expected = NullPointerException.class)
-    public void findDataList_BSTree_test2(){
-
+    public void findDataList_BSTree_test1(){
+        test.findDataList(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void findDataList_BSTree_test3(){
-
+    public void findDataList_BSTree_test2(){
+        test.findDataList(new Integer(10));
     }
 
+    @Test
+    public void findDataList_BSTree_test3(){
+        Integer add = new Integer(10);
+        Integer data = new Integer(100);
+        test.insert(new Integer(10));
+        test.insertData(add, data);
+        assertEquals(data, test.findDataList(add).get(0));
+    }
 
+    public void findDataList_BSTree_test4(){
+        Integer add = new Integer(10);
+        Integer data = new Integer(100);
+        test.insert(new Integer(10));
+        test.insertData(add, data);
+        assertEquals(false, test.findDataList(add).isEmpty());
+    }
 
+    public void findDataList_BSTree_test5(){
+        Integer add = new Integer(10);
+        Integer data = new Integer(100);
+        test.insert(new Integer(10));
+        test.insertData(add, data);
+        assertEquals(1, test.findDataList(add).size());
+    }
 
 }
